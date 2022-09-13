@@ -7,15 +7,16 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "re": "rm result.txt && node index.js"
   },
   "devDependencies": {
-    "async-fs": "^0.0.6",
     "chalk": "^5.0.1",
-    "csv-parse": "^5.3.0",
+    "csv-parser": "^3.0.0",
     "get-stream": "^6.0.1",
     "image-to-ascii": "^3.0.13",
     "lodash": "^4.17.21",
     "text-table": "^0.2.0"
-  }
+  },
+  "dependencies": {}
 }

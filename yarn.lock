@@ -57,18 +57,6 @@ assured@^1.0.12:
     noop6 "^1.0.1"
     sliced "^1.0.1"
 
-async-fs@^0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/async-fs/-/async-fs-0.0.6.tgz#29c4df5d57fdd1c2039d374710e5fa21e5e5c9b1"
-  integrity sha512-AKkH0ygXfMntiDrCgvvlK3qDFsoJHd0BxE0WkOm5nKU7D4H5NZ5LRMF3DXyWiOYWdmdo6R/JiXWvWbu86g14Mw==
-  dependencies:
-    async ">= 0.1.9"
-
-"async@>= 0.1.9":
-  version "3.2.4"
-  resolved "https://registry.yarnpkg.com/async/-/async-3.2.4.tgz#2d22e00f8cddeb5fde5dd33522b56d1cf569a81c"
-  integrity sha512-iAB+JbDEGXhyIUavoDl9WP/Jj106Kz9DEn1DPgYw5ruDn0e3Wgi3sKFm55sASdGBNOQB8F59d9qQ7deqrHA8wQ==
-
 cb-buffer@^2.0.0:
   version "2.1.9"
   resolved "https://registry.yarnpkg.com/cb-buffer/-/cb-buffer-2.1.9.tgz#1d29d15db0250a177199f0c05a74f043aeacffcb"
@@ -118,10 +106,12 @@ cross-spawn@^4.0.0:
     lru-cache "^4.0.1"
     which "^1.2.9"
 
-csv-parse@^5.3.0:
-  version "5.3.0"
-  resolved "https://registry.yarnpkg.com/csv-parse/-/csv-parse-5.3.0.tgz#85cc02fc9d1c89bd1b02e69069c960f8b8064322"
-  integrity sha512-UXJCGwvJ2fep39purtAn27OUYmxB1JQto+zhZ4QlJpzsirtSFbzLvip1aIgziqNdZp/TptvsKEV5BZSxe10/DQ==
+csv-parser@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/csv-parser/-/csv-parser-3.0.0.tgz#b88a6256d79e090a97a1b56451f9327b01d710e7"
+  integrity sha512-s6OYSXAK3IdKqYO33y09jhypG/bSDHPuyCme/IdEHfWpLf/jKcpitVFyOC6UemgGk8v7Q5u2XE0vvwmanxhGlQ==
+  dependencies:
+    minimist "^1.2.0"
 
 custom-return@^1.0.0:
   version "1.0.12"
@@ -327,6 +317,11 @@ map-o@^2.0.1:
   integrity sha512-BxazE81fVByHWasyXhqKeo2m7bFKYu+ZbEfiuexMOnklXW+tzDvnlTi/JaklEeuuwqcqJzPaf9q+TWptSGXeLg==
   dependencies:
     iterate-object "^1.3.0"
+
+minimist@^1.2.0:
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.6.tgz#8637a5b759ea0d6e98702cfb3a9283323c93af44"
+  integrity sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==
 
 ms@^2.1.1:
   version "2.1.3"

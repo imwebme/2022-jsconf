@@ -1,11 +1,12 @@
 import chalk from 'chalk';
 import imageToAscii from "image-to-ascii";
-// import {promises as fs} from 'fs';
-import fs from 'fs';
+import fs, {promises} from 'fs';
+// import fs from 'fs';
 import _ from 'lodash';
 import getStream from 'get-stream';
 import { parse } from 'csv-parse';
 import table from 'text-table';
+import csv from 'csv-parser';
 
 const primary = chalk.hex('#1A6DFF')
 
@@ -27,6 +28,28 @@ function maskingName(strName) {
 function maskingPhone(pn) {
   const regex = /\d(?=\d{4})/mg;
   return pn.replace(regex, "*");
+}
+
+function getFileContentsCsv(fileName){
+  const results = [];
+  const stream = fs.createReadStream(fileName)
+    .pipe(csv())
+    .on('data', (data) => results.push(data))
+    // .on('end', () => {
+    //   console.log(results);
+    // });
+  ;
+  return new Promise((resolve, reject) => {
+    stream.on('error', function(err){
+      // console.log('File read Error.');
+      resolve(reject);
+    })
+  
+    stream.on('end', function(){ // nodejs에서 Stream은 기본적으로 event emitter이다.
+      // console.log('ReadStream End.');
+      resolve(results);  // Array 반환
+    })
+  })
 }
 
 // core 'library' exposing native node console capabilities for co-routines
@@ -62,7 +85,7 @@ async function runSequence(sequenceFactory, clearScreen = false, etcLog) {
 }
 
 async function* createOriginalPostersSequence(print) {
-  console.log(primary("JSConf imweb에 오신것을 환경합니다."))
+  console.log(primary("\nJSConf imweb에 오신것을 환경합니다.\n"))
   let ready = "";
   while (!ready) {
     ready = yield "참여자 추첨 [Y/n]";
@@ -76,63 +99,46 @@ async function* createOriginalPostersSequence(print) {
   }
 
 
-  const parseStream = parse({delimiter: ','});
-  const data = await getStream.array(fs.createReadStream('data.csv').pipe(parseStream));
+  const data = await getFileContentsCsv('data.csv');
   const randomIndex = _.random(0, data.length - 1);
   const chosen = data[randomIndex];
 
-  const c = `${chosen[1]} ${chosen[2]}`
+  const c = `${chosen['이름']} ${chosen['연락처']}`
+  const r = primary(`${maskingName(chosen['이름'])} ${maskingPhone(chosen['연락처'])}`);
   print(`
-  축 당첨
-  
-  ${c}
-  
+  🎉 축 당첨
+
+  ${r}
+
   JSConf 2022 아임웹 부스에 참여해주셔서 감사합니다.
   `);
 
-  let list = "";
-  while (!list) {
-    list = yield "참여자 명단 보기 [y/N]";
-    if (!list) {
-      list = 'N';
-    }
-    if (list == 'N' || list == 'n') {
-      process.exit(0);
-    }
-  }
-
-  const listTable = data.slice().map(array => {
-    const time = array[0];
-    let name = array[1];
-    let phone = array[2];
-    name = maskingName(name);
-    phone = maskingPhone(phone);
-    return [time, name, phone];
-  })
-  
-  listTable[randomIndex] = listTable[randomIndex].map(text => primary(text))
-  console.log(table(listTable, { align: [ 'l', 'r', 'r' ] }));
-
-  console.log(c);
-  await fs.writeFile('result.txt', c, err => {
+  await promises.writeFile('result.txt', c, err => {
     console.log(err);
   });
 }
 
 // 파일유무 확인
-const fileExists = async path => !!(await fs.stat(path).catch(e => false));
+const fileExists = async path => !!(await promises.stat(path).catch(e => false));
 
 async function run(logo) {
   console.clear();
   console.log(logo);
-  // const exists = await fileExists('./result.txt');
-  // if (exists) process.exit(0);
+  const exists = await fileExists('./result.txt');
+  if (exists) {
+    console.log('이미 추첨이 완료되었습니다. 감사합니다')
+    process.exit(0)
+  };
   await runSequence(createOriginalPostersSequence);
   process.exit(0);
 }
 
 imageToAscii('https://vendor-cdn.imweb.me/images/main/imweb-favicon-192x192.png?v1', {
-  white_bg: false
+  white_bg: false,
+  size: {
+    width: 20,
+    height: 20
+  }
 }, (err, converted) => {
   run(converted)
 });
