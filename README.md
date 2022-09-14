@@ -9,15 +9,19 @@
 
 https://2022.jsconf.kr/ko
 
----
+## using
 
-## TODO
-
-추첨은 9.17일날 한타임에 모두 발표
-발표할때 한사람씩
-
-- 2등 3명
-- 1등 1명
+1. 설문 자료 엑셀 다운로드
+2. `data.csv`로 이름변경
+3. github codespace로 저장소열기
+4. `data.csv` project root로 업로드
+5. 우분투 image-to-ascii 필요 모듈설치
+  ```
+  # Ubuntu
+  $ sudo apt-get install streamer
+  ```
+4. yarn install & npm install
+5. yarn start && (재추첨) yarn re
 
 ---
 
