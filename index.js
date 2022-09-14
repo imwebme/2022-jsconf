@@ -1,11 +1,7 @@
 import chalk from 'chalk';
 import imageToAscii from "image-to-ascii";
 import fs, {promises} from 'fs';
-// import fs from 'fs';
 import _ from 'lodash';
-import getStream from 'get-stream';
-import { parse } from 'csv-parse';
-import table from 'text-table';
 import csv from 'csv-parser';
 
 const primary = chalk.hex('#1A6DFF')
@@ -30,7 +26,30 @@ function maskingPhone(pn) {
   return pn.replace(regex, "*");
 }
 
-function getFileContentsCsv(fileName){
+function maskingEmail(email) {
+  email = email.split('');
+  let finalArr=[];
+  let len = email.indexOf('@');
+  email.forEach((item,pos)=>{
+  (pos>=1 && pos<=len-2) ? finalArr.push('*') : finalArr.push(email[pos]);
+  })
+  return finalArr.join('')
+}
+
+/**
+ * 중복참여 방지
+ * 동명이인이 있을 수 있음으로 이메일로만 체크 
+ * @param Array data 
+ * @returns set
+ */
+export function duplicatedCheck(data) {
+  // 중복 제거 기준 이름 확인 > 이메일
+  return _.uniqBy(data, function (e) {
+    return e['이메일'];
+  });
+}
+
+export function getFileContentsCsv(fileName){
   const results = [];
   const stream = fs.createReadStream(fileName)
     .pipe(csv())
@@ -99,37 +118,46 @@ async function* createOriginalPostersSequence(print) {
   }
 
 
-  const data = await getFileContentsCsv('data.csv');
-  const randomIndex = _.random(0, data.length - 1);
-  const chosen = data[randomIndex];
+  let data = await getFileContentsCsv('data.csv');
+  data = duplicatedCheck(data);
 
-  const c = `${chosen['이름']} ${chosen['연락처']}`
-  const r = primary(`${maskingName(chosen['이름'])} ${maskingPhone(chosen['연락처'])}`);
-  print(`
-  🎉 축 당첨
+  let results = [];
+  while(results.length < 5) {
+    const is = yield 'enter!';
+    print('🎉 축 당첨\n');
+    const randomIndex = _.random(0, data.length - 1);
+    const chosen = data[randomIndex];
+    results.push(chosen);
+    results.map((e, index) => {
+      let unit = primary('2등: ');
+      if (index == 4) {
+        unit = chalk.hex('#00D69A')('1등: ')
+      }
+      const r = unit + `${maskingName(e['성함'])} ${maskingEmail(e['이메일'])} ${maskingPhone(e['연락처'])}`;
+      
+      print(r);
+    })
+  }
 
-  ${r}
+  print(`\nJSConf 2022 아임웹 부스에 참여해주셔서 감사합니다.\n\n\n\n\n\n\n\n\n`);
 
-  JSConf 2022 아임웹 부스에 참여해주셔서 감사합니다.
-  `);
-
-  await promises.writeFile('result.txt', c, err => {
+  await promises.writeFile('result.txt', results.map(e => `${e['성함']} ${e['이메일']} ${e['연락처']}`).join('\n'), err => {
     console.log(err);
   });
 }
 
 // 파일유무 확인
-const fileExists = async path => !!(await promises.stat(path).catch(e => false));
+export const fileExists = async path => !!(await promises.stat(path).catch(e => false));
 
 async function run(logo) {
   console.clear();
   console.log(logo);
   const exists = await fileExists('./result.txt');
   if (exists) {
-    console.log('이미 추첨이 완료되었습니다. 감사합니다')
+    console.log('이미 추첨이 완료되었습니다. 감사합니다 🙏')
     process.exit(0)
   };
-  await runSequence(createOriginalPostersSequence);
+  await runSequence(createOriginalPostersSequence, true, logo);
   process.exit(0);
 }
 
@@ -142,18 +170,3 @@ imageToAscii('https://vendor-cdn.imweb.me/images/main/imweb-favicon-192x192.png?
 }, (err, converted) => {
   run(converted)
 });
-
-
-// fs.createReadStream('data.csv')
-//   .pipe(csv())
-//   .on('데이저 가져오기', (data) => {
-//     const results = [];
-//     results.push(data)
-//     return results;
-//   })
-//   .on('랜덤 추출', () => {
-//     // console.log(results);
-//     const result = _.sample(results);
-//     console.log(result);
-//     return result;
-//   })
