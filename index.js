@@ -49,6 +49,18 @@ export function duplicatedCheck(data) {
   });
 }
 
+/**
+ * 특정 숫자 제외 랜덤 숫자
+ */
+function generateRandom(min, max, exclude) {
+  let random;
+  while (!random) {
+    const x = Math.floor(Math.random() * (max - min + 1)) + min;
+    if (exclude.indexOf(x) === -1) random = x;
+  }
+  return random;
+}
+
 export function getFileContentsCsv(fileName){
   const results = [];
   const stream = fs.createReadStream(fileName)
@@ -116,6 +128,7 @@ async function* createOriginalPostersSequence(print) {
       process.exit(0);
     }
   }
+  print('🎉 축 당첨\n');
 
 
   let data = await getFileContentsCsv('data.csv');
@@ -123,10 +136,11 @@ async function* createOriginalPostersSequence(print) {
 
   let results = [];
   while(results.length < 5) {
-    const is = yield 'enter!';
+    const is = yield 'enter: ';
     print('🎉 축 당첨\n');
-    const randomIndex = _.random(0, data.length - 1);
+    const randomIndex = generateRandom(0,data.length - 1, results.map(e => e.key));
     const chosen = data[randomIndex];
+    chosen['key'] = randomIndex;
     results.push(chosen);
     results.map((e, index) => {
       let unit = primary('2등: ');
